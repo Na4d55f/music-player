@@ -4,7 +4,7 @@
   "description": "A complete music streaming application.",
   "scripts": {
     "start": "node backend/server.js",
-    "dev": "concurrently "npm run server" "npm run client"",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
     "client": "cd frontend && npm run dev",
     "server": "cd backend && nodemon server.js"
   },
