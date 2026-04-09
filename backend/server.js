@@ -1,11 +1,16 @@
 const express = require('express');
 const cors = require('cors');
+const crypto = require('crypto');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
+
+function hashPassword(password) {
+  return crypto.createHash('sha256').update(password).digest('hex');
+}
 
 const songs = [
   { id: 1, title: "Blinding Lights", artist: "The Weeknd", album: "After Hours", genre: "Pop", duration: "3:20", year: 2019, audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", coverUrl: "https://picsum.photos/seed/song1/300/300", plays: 98000000 },
@@ -104,14 +109,15 @@ app.post('/api/auth/register', (req, res) => {
   if (existingUser) {
     return res.status(400).json({ success: false, message: 'Email already registered' });
   }
-  const user = { id: users.length + 1, name, email, password };
+  const user = { id: users.length + 1, name, email, passwordHash: hashPassword(password) };
   users.push(user);
   res.json({ success: true, data: { id: user.id, name: user.name, email: user.email }, message: 'Registered successfully' });
 });
 
 app.post('/api/auth/login', (req, res) => {
   const { email, password } = req.body;
-  const user = users.find(u => u.email === email && u.password === password);
+  const hash = hashPassword(password);
+  const user = users.find(u => u.email === email && u.passwordHash === hash);
   if (!user) {
     return res.status(401).json({ success: false, message: 'Invalid credentials' });
   }
