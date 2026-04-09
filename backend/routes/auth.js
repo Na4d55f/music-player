@@ -29,6 +29,15 @@ router.post('/register', async (req, res) => {
     if (!username || !email || !password) {
       return res.status(400).json({ message: 'All fields are required' });
     }
+
+    // Sanitize inputs to prevent NoSQL injection
+    if (typeof username !== 'string' || typeof email !== 'string' || typeof password !== 'string') {
+      return res.status(400).json({ message: 'Invalid input' });
+    }
+
+    const sanitizedEmail = email.toLowerCase().trim();
+    const sanitizedUsername = username.trim();
+
     if (password.length < 6) {
       return res.status(400).json({ message: 'Password must be at least 6 characters' });
     }
@@ -36,21 +45,21 @@ router.post('/register', async (req, res) => {
     const hashed = await bcrypt.hash(password, 12);
 
     if (User && User.db && User.db.readyState === 1) {
-      const existing = await User.findOne({ $or: [{ email }, { username }] });
+      const existing = await User.findOne({ $or: [{ email: sanitizedEmail }, { username: sanitizedUsername }] });
       if (existing) return res.status(400).json({ message: 'User already exists' });
-      const user = await User.create({ username, email, password: hashed });
+      const user = await User.create({ username: sanitizedUsername, email: sanitizedEmail, password: hashed });
       const token = signToken(user);
       return res.status(201).json({ token, user: { id: user._id, username: user.username, email: user.email, favorites: [], recentlyPlayed: [] } });
     }
 
     // In-memory fallback
-    const existing = inMemoryUsers.find(u => u.email === email || u.username === username);
+    const existing = inMemoryUsers.find(u => u.email === sanitizedEmail || u.username === sanitizedUsername);
     if (existing) return res.status(400).json({ message: 'User already exists' });
     const id = Date.now().toString();
-    const user = { id, username, email, password: hashed, favorites: [], playlists: [], recentlyPlayed: [], createdAt: new Date() };
+    const user = { id, username: sanitizedUsername, email: sanitizedEmail, password: hashed, favorites: [], playlists: [], recentlyPlayed: [], createdAt: new Date() };
     inMemoryUsers.push(user);
     const token = signToken(user);
-    return res.status(201).json({ token, user: { id, username, email, favorites: [], recentlyPlayed: [] } });
+    return res.status(201).json({ token, user: { id, username: sanitizedUsername, email: sanitizedEmail, favorites: [], recentlyPlayed: [] } });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });
@@ -63,9 +72,16 @@ router.post('/login', async (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) return res.status(400).json({ message: 'Email and password required' });
 
+    // Sanitize inputs to prevent NoSQL injection - ensure these are strings
+    if (typeof email !== 'string' || typeof password !== 'string') {
+      return res.status(400).json({ message: 'Invalid input' });
+    }
+
+    const sanitizedEmail = email.toLowerCase().trim();
+
     let user;
     if (User && User.db && User.db.readyState === 1) {
-      user = await User.findOne({ email });
+      user = await User.findOne({ email: sanitizedEmail });
       if (!user) return res.status(401).json({ message: 'Invalid credentials' });
       const match = await bcrypt.compare(password, user.password);
       if (!match) return res.status(401).json({ message: 'Invalid credentials' });
@@ -74,7 +90,7 @@ router.post('/login', async (req, res) => {
     }
 
     // In-memory fallback
-    user = inMemoryUsers.find(u => u.email === email);
+    user = inMemoryUsers.find(u => u.email === sanitizedEmail);
     if (!user) return res.status(401).json({ message: 'Invalid credentials' });
     const match = await bcrypt.compare(password, user.password);
     if (!match) return res.status(401).json({ message: 'Invalid credentials' });

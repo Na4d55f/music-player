@@ -77,9 +77,13 @@ router.get('/:id', authMiddleware, async (req, res) => {
 router.put('/:id', authMiddleware, async (req, res) => {
   try {
     const { name, description, isPublic } = req.body;
+    // Validate types to prevent NoSQL injection
+    if (name !== undefined && typeof name !== 'string') {
+      return res.status(400).json({ message: 'Invalid input' });
+    }
     if (useDB()) {
       const playlist = await Playlist.findOneAndUpdate(
-        { _id: req.params.id, owner: req.user.id },
+        { _id: String(req.params.id), owner: req.user.id },
         { name, description, isPublic, updatedAt: Date.now() },
         { new: true }
       );

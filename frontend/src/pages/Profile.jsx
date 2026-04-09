@@ -94,7 +94,7 @@ export default function Profile() {
           </div>
           <div className="flex items-center justify-between py-2">
             <span className="text-sm text-slate-400">Member since</span>
-            <span className="text-sm text-white">2024</span>
+            <span className="text-sm text-white">{new Date().getFullYear()}</span>
           </div>
         </div>
         <button
