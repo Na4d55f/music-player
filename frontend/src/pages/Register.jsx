@@ -9,7 +9,7 @@ export default function Register() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     if (form.password.length < 6) {
@@ -18,7 +18,7 @@ export default function Register() {
     }
     setLoading(true);
     try {
-      register(form.name, form.email, form.password);
+      await register(form.name, form.email, form.password);
       navigate('/');
     } catch (err) {
       setError(err.message);

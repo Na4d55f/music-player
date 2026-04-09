@@ -9,12 +9,12 @@ export default function Login() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
     try {
-      login(form.email, form.password);
+      await login(form.email, form.password);
       navigate('/');
     } catch (err) {
       setError(err.message);
