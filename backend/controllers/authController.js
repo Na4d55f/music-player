@@ -30,7 +30,8 @@ const register = async (req, res, next) => {
 // POST /api/auth/login
 const login = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const email = String(req.body.email || '').toLowerCase().trim();
+    const { password } = req.body;
 
     const user = await User.findOne({ email }).select('+password');
     if (!user) {
@@ -66,7 +67,7 @@ const logout = (req, res) => {
 // POST /api/auth/forgot-password
 const forgotPassword = async (req, res, next) => {
   try {
-    const { email } = req.body;
+    const email = String(req.body.email || '').toLowerCase().trim();
     const user = await User.findOne({ email });
 
     if (!user) {

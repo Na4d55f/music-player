@@ -12,6 +12,8 @@ jobs:
   test:
     name: Test & Lint
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
 
@@ -44,6 +46,8 @@ jobs:
     needs: test
     if: github.ref == 'refs/heads/main'
     environment: production
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
 

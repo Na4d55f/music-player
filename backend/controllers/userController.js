@@ -11,9 +11,10 @@ const updateProfile = async (req, res, next) => {
   try {
     const { username, bio, avatar } = req.body;
     const updates = {};
-    if (username !== undefined) updates.username = username;
-    if (bio !== undefined) updates.bio = bio;
-    if (avatar !== undefined) updates.avatar = avatar;
+    // Sanitize to strings to prevent NoSQL injection
+    if (username !== undefined) updates.username = String(username).trim();
+    if (bio !== undefined) updates.bio = String(bio).trim();
+    if (avatar !== undefined) updates.avatar = String(avatar).trim();
 
     const user = await User.findByIdAndUpdate(req.user._id, updates, {
       new: true,
