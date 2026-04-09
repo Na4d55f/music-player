@@ -1,10 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
 import SongCard from '../components/SongCard';
 import { useMusic } from '../context/MusicContext';
-
-const JAMENDO_CLIENT_ID = 'b6747d04';
-const BASE_URL = 'https://api.jamendo.com/v3.0';
+import { fetchTracks } from '../api/jamendo';
 
 const GENRES = [
   { label: 'All', value: '' },
@@ -17,18 +14,8 @@ const GENRES = [
   { label: '🥁 Hip-Hop', value: 'hiphop' },
 ];
 
-async function fetchTracks(params = {}) {
-  const res = await axios.get(`${BASE_URL}/tracks/`, {
-    params: {
-      client_id: JAMENDO_CLIENT_ID,
-      format: 'json',
-      limit: 20,
-      imagesize: 200,
-      audioformat: 'mp32',
-      ...params,
-    },
-  });
-  return res.data.results || [];
+async function fetchTracksLocal(params = {}) {
+  return fetchTracks(params);
 }
 
 export default function Home() {
@@ -40,7 +27,7 @@ export default function Home() {
   const { recentlyPlayed, playSong } = useMusic();
 
   useEffect(() => {
-    fetchTracks({ order: 'popularity_total', limit: 20 })
+    fetchTracksLocal({ order: 'popularity_total', limit: 20 })
       .then(setTrending)
       .finally(() => setLoading(false));
   }, []);
@@ -53,7 +40,7 @@ export default function Home() {
     }
     setGenreLoading(true);
     try {
-      const tracks = await fetchTracks({ tags: tag, order: 'popularity_total', limit: 10 });
+      const tracks = await fetchTracksLocal({ tags: tag, order: 'popularity_total', limit: 10 });
       setGenreSongs(tracks);
     } catch {
       setGenreSongs([]);

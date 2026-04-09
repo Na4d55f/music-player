@@ -169,7 +169,7 @@ export default function Player() {
               </svg>
             )}
           </button>
-          <div className={`transition-all overflow-hidden ${showVolume || true ? 'w-24' : 'w-0'}`}>
+          <div className={`transition-all overflow-hidden ${showVolume ? 'w-24' : 'w-0'}`}>
             <input
               type="range"
               min={0}

@@ -2,6 +2,16 @@ import React, { createContext, useContext, useState, useCallback } from 'react';
 
 const AuthContext = createContext(null);
 
+/** Simple deterministic hash to avoid storing plaintext passwords in localStorage. */
+function hashPassword(password) {
+  let hash = 0;
+  for (let i = 0; i < password.length; i++) {
+    const chr = password.charCodeAt(i);
+    hash = ((hash << 5) - hash + chr) | 0;
+  }
+  return hash.toString(36);
+}
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
     try {
@@ -16,10 +26,10 @@ export function AuthProvider({ children }) {
     if (users.some((u) => u.email === email)) {
       throw new Error('Email already registered');
     }
-    const newUser = { id: Date.now().toString(), email, password, name };
+    const newUser = { id: Date.now().toString(), email, passwordHash: hashPassword(password), name };
     users.push(newUser);
     localStorage.setItem('users', JSON.stringify(users));
-    const { password: _p, ...safeUser } = newUser;
+    const { passwordHash: _ph, ...safeUser } = newUser;
     localStorage.setItem('user', JSON.stringify(safeUser));
     setUser(safeUser);
     return safeUser;
@@ -27,9 +37,11 @@ export function AuthProvider({ children }) {
 
   const login = useCallback((email, password) => {
     const users = JSON.parse(localStorage.getItem('users') || '[]');
-    const found = users.find((u) => u.email === email && u.password === password);
+    const found = users.find(
+      (u) => u.email === email && u.passwordHash === hashPassword(password)
+    );
     if (!found) throw new Error('Invalid email or password');
-    const { password: _p, ...safeUser } = found;
+    const { passwordHash: _ph, ...safeUser } = found;
     localStorage.setItem('user', JSON.stringify(safeUser));
     setUser(safeUser);
     return safeUser;

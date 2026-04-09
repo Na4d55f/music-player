@@ -1,10 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
+import React, { useState, useRef } from 'react';
 import SearchBar from '../components/SearchBar';
 import SongCard from '../components/SongCard';
-
-const JAMENDO_CLIENT_ID = 'b6747d04';
-const BASE_URL = 'https://api.jamendo.com/v3.0';
+import { fetchTracks } from '../api/jamendo';
 
 export default function Search() {
   const [query, setQuery] = useState('');
@@ -22,17 +19,8 @@ export default function Search() {
     setLoading(true);
     setSearched(true);
     try {
-      const res = await axios.get(`${BASE_URL}/tracks/`, {
-        params: {
-          client_id: JAMENDO_CLIENT_ID,
-          format: 'json',
-          limit: 30,
-          search: q,
-          imagesize: 200,
-          audioformat: 'mp32',
-        },
-      });
-      setResults(res.data.results || []);
+      const results = await fetchTracks({ search: q, limit: 30 });
+      setResults(results);
     } catch {
       setResults([]);
     } finally {
