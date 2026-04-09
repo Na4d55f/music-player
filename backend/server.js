@@ -5,7 +5,14 @@ require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const JAMENDO_CLIENT_ID = process.env.JAMENDO_CLIENT_ID || 'b6747d04';
+// Use the JAMENDO_CLIENT_ID env var; fall back to the public Jamendo demo key only in development.
+const JAMENDO_CLIENT_ID = process.env.JAMENDO_CLIENT_ID;
+if (!JAMENDO_CLIENT_ID) {
+  console.warn(
+    'JAMENDO_CLIENT_ID is not set. Set it in your .env file. ' +
+    'Get a free key at https://devportal.jamendo.com'
+  );
+}
 const JAMENDO_BASE = 'https://api.jamendo.com/v3.0';
 
 app.use(cors());

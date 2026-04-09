@@ -44,9 +44,9 @@ export default function Login() {
     try {
       if (mode === 'register') {
         if (!name.trim()) { setError('Name is required'); return; }
-        register(email, password, name);
+        await register(email, password, name);
       } else {
-        login(email, password);
+        await login(email, password);
       }
       navigate('/');
     } catch (err) {
