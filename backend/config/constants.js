@@ -1,0 +1,11 @@
+module.exports = {
+  JWT_EXPIRE: process.env.JWT_EXPIRE || '7d',
+  SALT_ROUNDS: 12,
+  MAX_PLAYLIST_SONGS: 500,
+  MAX_PLAYLISTS_PER_USER: 50,
+  LASTFM_BASE_URL: 'http://ws.audioscrobbler.com/2.0/',
+  RATE_LIMIT_WINDOW_MS: 15 * 60 * 1000, // 15 minutes
+  RATE_LIMIT_MAX_REQUESTS: 100,
+  AUTH_RATE_LIMIT_MAX: 20,
+  PAGINATION_LIMIT: 20,
+};
