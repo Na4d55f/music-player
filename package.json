@@ -1,0 +1,16 @@
+{
+  "name": "music-streaming-app",
+  "version": "1.0.0",
+  "description": "A complete music streaming application.",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "concurrently "npm run server" "npm run client"",
+    "client": "cd frontend && npm run dev",
+    "server": "cd backend && nodemon server.js"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "concurrently": "^6.0.0",
+    "nodemon": "^2.0.0"
+  }
+}
